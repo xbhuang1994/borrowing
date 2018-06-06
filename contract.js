@@ -97,6 +97,9 @@ Contract.prototype = {
         c.status = "open";
         c.creatorArbitrationVote = 0;
         c.acceptorArbitrationVote = 0;
+        c.creatorArbitrationVoteArr = [];
+        c.acceptorArbitrationVoteArr = [];
+        c.voteResult = false;
         this._set(c.txhash, c);
     },
     cancel: function (txhash) {
@@ -161,12 +164,23 @@ Contract.prototype = {
         c.status = "arbitration";
         this._set(c.txhash, c);
     },
-    arbitrationVote(txhash, bl) {
+    arbitrationVote(txhash, tag) {
         let c = this.get(txhash);
-        let value = Blockchain.transaction.value;
+        let hash = Blockchain.block.hash;
+        let from = Blockchain.transaction.value;
+        let value = new BigNumber(Blockchain.transaction.value);
+        if (tag == "creator") {
+            this.creatorArbitrationVote = new BigNumber(this.creatorArbitrationVote).plus(value);
+            this.creatorArbitrationVoteArr.push({ hash, from, value });
+        } else if (tag == "acceptor") {
+            this.acceptorArbitrationVote = new BigNumber(this.acceptorArbitrationVote).plus(value);
+            this.acceptorArbitrationVoteArr.push({ hash, from, value });
+        } else {
+            throw new Error("Insufficient tag");
+        }
         //TODO 记录仲裁投票的人以及投票金额，当投票结果发生改变时重置仲裁结束时间。
     },
-    performArbitration(txhash){
+    performArbitration(txhash) {
         //TODO 当满足结束时间时，可以申请执行仲裁。
     },
     //prevent irreversible lock-up of digital assets, only test versions.
