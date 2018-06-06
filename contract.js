@@ -142,7 +142,7 @@ Contract.prototype = {
             this._transfer(c.creator, c.deposit);
             this._transfer(c.acceptor, c.margin);
         }
-        this.set(txhash, c);
+        this._set(txhash, c);
     },
     arbitration: function (txhash, desc) {
         let from = Blockchain.transaction.from;
